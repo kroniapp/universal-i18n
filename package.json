@@ -1,6 +1,6 @@
 {
   "name": "typescript-i18n",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "",
   "keywords": [
     "i18n",
@@ -23,14 +23,14 @@
     "type": "git",
     "url": "https://github.com/kroniapp/typescript-i18n"
   },
-  "main": "./dist/index.cjs.js",
+  "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "npx ts-node --project tsconfig.test.json src/test.ts",
     "clean": "rm -rf ./dist",
     "build": "npm run clean && npm run build:esm && npm run build:cjs",
-    "build:esm": "tsc -p tsconfig.esm.json && mv dist/index.js dist/index.esm.js",
-    "build:cjs": "tsc -p tsconfig.cjs.json && mv dist/index.js dist/index.cjs.js",
+    "build:esm": "tsc -p tsconfig.esm.json && mv dist/index.js dist/index.mjs",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
     "prepack": "npm run build"
   },
   "license": "ISC",
@@ -38,10 +38,12 @@
     "typescript": "^4.9.4"
   },
   "exports": {
-    "import": "./dist/index.esm.js",
-    "require": "./dist/index.cjs.js"
+    "*": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
   },
   "files": [
-    "dist/*"
+    "dist"
   ]
 }
