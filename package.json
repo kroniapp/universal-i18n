@@ -1,0 +1,49 @@
+{
+  "name": "universal-i18n",
+  "version": "0.1.0",
+  "description": "",
+  "keywords": [
+    "i18n",
+    "translations",
+    "translation",
+    "autocomplete",
+    "ts",
+    "typescript"
+  ],
+  "homepage": "https://github.com/kroniapp/universal-i18n",
+  "author": {
+    "name": "Kronia",
+    "email": "kroniapp@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/kroniapp/universal-i18n/issues",
+    "email": "kroniapp@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kroniapp/universal-i18n"
+  },
+  "main": "./dist/index.cjs.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "dev": "npx ts-node --project tsconfig.test.json src/test.ts",
+    "clean": "rm -rf ./dist",
+    "build": "npm run clean && npm run build:esm && npm run build:cjs",
+    "build:esm": "tsc -p tsconfig.esm.json && mv dist/index.js dist/index.esm.js",
+    "build:cjs": "tsc -p tsconfig.cjs.json && mv dist/index.js dist/index.cjs.js",
+    "prepack": "npm run build"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^4.9.4"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.cjs.js"
+    }
+  },
+  "files": [
+    "dist/*"
+  ]
+}
