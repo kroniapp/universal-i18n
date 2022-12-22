@@ -1,5 +1,5 @@
 {
-  "name": "universal-i18n",
+  "name": "typescript-i18n",
   "version": "0.1.0",
   "description": "",
   "keywords": [
@@ -10,18 +10,18 @@
     "ts",
     "typescript"
   ],
-  "homepage": "https://github.com/kroniapp/universal-i18n",
+  "homepage": "https://github.com/kroniapp/typescript-i18n",
   "author": {
     "name": "Kronia",
     "email": "kroniapp@gmail.com"
   },
   "bugs": {
-    "url": "https://github.com/kroniapp/universal-i18n/issues",
+    "url": "https://github.com/kroniapp/typescript-i18n/issues",
     "email": "kroniapp@gmail.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kroniapp/universal-i18n"
+    "url": "https://github.com/kroniapp/typescript-i18n"
   },
   "main": "./dist/index.cjs.js",
   "types": "./dist/index.d.ts",
