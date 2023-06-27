@@ -28,10 +28,9 @@
   "scripts": {
     "dev": "npx ts-node --project tsconfig.test.json src/test.ts",
     "clean": "rm -rf ./dist",
-    "build": "npm run clean && npm run build:esm && npm run build:cjs",
+    "build": "pnpm run clean && pnpm run build:esm && pnpm run build:cjs",
     "build:esm": "tsc -p tsconfig.esm.json && mv dist/index.js dist/index.mjs",
-    "build:cjs": "tsc -p tsconfig.cjs.json",
-    "prepack": "npm run build"
+    "build:cjs": "tsc -p tsconfig.cjs.json"
   },
   "license": "ISC",
   "devDependencies": {

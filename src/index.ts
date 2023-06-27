@@ -1,69 +1,49 @@
-type UniversalI18nStrings = {
-  [lang: string]: UniversalI18nLang;
+type TypescriptI18nStrings = {
+  [lang: string]: TypescriptI18nLang;
 };
 
-type UniversalI18nLang = {
-  [key: string]: UniversalI18nLang | string;
+type TypescriptI18nLang = {
+  [key: string]: TypescriptI18nLang | string;
 };
 
-type UniversalI18nOptions<T> = {
+type TypescriptI18nOptions<T> = {
   defaultLanguage: keyof T;
 };
 
-type ToFunction<T, P extends string = typeof prefix> = {
-  [key in keyof T]: T[key] extends string
-    ? ToFunctionString<key, P>
-    : ToFunction<T[key], P>;
+type ToFunction<S> = {
+  [key in keyof S]: S[key] extends string ? ToFunctionString<key> : ToFunction<S[key]>;
 };
 
-type ToFunctionString<
-  K,
-  P extends string = typeof prefix
-> = K extends `${P}${string}`
-  ? (variables: Record<string, any>) => string
-  : string;
+type ToFunctionString<K> = K extends `${typeof functionPrefix}${string}` ? (variables: Record<string, any>) => string : string;
 
-const prefix = "$";
-
-const ToFunction = <S extends UniversalI18nStrings>(
-  strings: UniversalI18nLang
-): ToFunction<S[keyof S]> => {
+const ToFunction = <S extends TypescriptI18nStrings>(strings: TypescriptI18nLang): ToFunction<S[keyof S]> => {
   const s: any = strings;
-  Object.entries(strings).map(([key, value]) => {
-    s[key] =
-      typeof value === "string"
-        ? ToFunctionString(key, value)
-        : ToFunction(value);
-  });
+  Object.entries(strings).map(([key, value]) => (s[key] = typeof value === "string" ? ToFunctionString(key, value) : ToFunction(value)));
 
   return s as ToFunction<S[keyof S]>;
 };
 
 const ToFunctionString = (key: string, value: string) =>
-  key.startsWith(prefix)
-    ? (variables: Record<string, any>) =>
-        value.replace(/{{(.+)}}/g, (m, i) => variables[i] || m)
-    : value;
+  key[0] === functionPrefix ? (variables: Record<string, any>) => value.replace(/{{(.+)}}/g, (m, i) => variables[i] || m) : value;
 
-class UniversalI18n<Strings extends UniversalI18nStrings> {
+const functionPrefix = "$";
+
+class TypescriptI18n<Strings extends TypescriptI18nStrings> {
   private strings: Strings;
 
   currentLanguage: keyof Strings = "en";
   private currentStrings: ToFunction<Strings[keyof Strings]>;
 
-  readonly options: UniversalI18nOptions<Strings> = {
-    defaultLanguage: "en",
+  readonly options: TypescriptI18nOptions<Strings> = {
+    defaultLanguage: "en"
   };
 
-  constructor(
-    strings: Strings,
-    options?: Partial<UniversalI18nOptions<Strings>>
-  ) {
+  constructor(strings: Strings, options?: Partial<TypescriptI18nOptions<Strings>>) {
     this.strings = strings;
 
     this.options = {
       ...this.options,
-      ...options,
+      ...options
     };
 
     this.currentLanguage = this.options.defaultLanguage;
@@ -71,17 +51,14 @@ class UniversalI18n<Strings extends UniversalI18nStrings> {
   }
 
   get s(): ToFunction<Strings[keyof Strings]> {
-    this.currentStrings = ToFunction<Strings>(
-      this.strings[this.currentLanguage]
-    );
-    return this.currentStrings;
+    this.currentStrings = ToFunction<Strings>(this.strings[this.currentLanguage]);
+    return this.currentStrings as ToFunction<Strings[keyof Strings]>;
   }
 
   get = (key: string, variables?: Record<string, any>): string => {
-    const parts = key.split(".");
-    const res = parts.reduce((word: any, part: string) => word[part] || "", this.currentStrings);
+    const res = key.split(".").reduce((word: any, part: string) => word[part] || "", this.currentStrings);
 
-    if(!res) return key;
+    if (!res) return key;
 
     switch (typeof res) {
       case "string":
@@ -97,14 +74,12 @@ class UniversalI18n<Strings extends UniversalI18nStrings> {
   getUserLanguage = (languages: string | readonly string[]): keyof Strings => {
     if (!languages) return this.options.defaultLanguage;
 
-    const defaultLocale = `${`${languages}`.match(
-      /[a-zA-Z]+(?=-|_|,|;)?/
-    )}`.toLowerCase() as keyof Strings;
+    const language = `${`${languages}`.match(/[a-zA-Z]+(?=-|_|,|;)?/)}`.toLowerCase() as keyof Strings;
 
-    if (this.getLanguages().includes(defaultLocale)) return defaultLocale;
+    if (this.getLanguages().includes(language)) return language;
 
     return this.options.defaultLanguage;
   };
 }
 
-export default UniversalI18n;
+export default TypescriptI18n;

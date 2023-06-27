@@ -1,0 +1,88 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - v[0-9]+\.[0-9]+\.[0-9]+
+      - v[0-9]+\.[0-9]+\.[0-9]+-next\.[0-9]*
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Set up env
+        run: |
+          branch=${{github.event.base_ref}}
+          branch=$(echo $branch | sed -r "s/^refs\/heads\/(.*)$/\1/")
+          tag=$GITHUB_REF_NAME
+          version=$(echo $tag | sed -r "s/^v(.*)$/\1/")
+          prerelease=false
+          if [[ $tag == *"-next"* ]]; then
+            prerelease=true
+          fi
+
+          echo "branch=$branch" >> $GITHUB_ENV
+          echo "prerelease=$prerelease" >> $GITHUB_ENV
+          echo "version=$version" >> $GITHUB_ENV
+
+          echo "Branch: $branch"
+          echo "Prerelease: $prerelease"
+          echo "Version: $version"
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git config --get user.name
+          git config --get user.email
+
+      - name: Set up checkout
+        uses: actions/checkout@v3
+
+      - name: Set up PNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20.x"
+          registry-url: "https://npm.pkg.github.com"
+          cache: "pnpm"
+
+      - name: Update version
+        run: |
+          git fetch origin ${{env.branch}}
+          git tag -d $GITHUB_REF_NAME
+          git push --delete origin $GITHUB_REF_NAME
+          git checkout ${{env.branch}}
+          pnpm version ${{env.version}} -m "Release %s"
+          git push origin ${{env.branch}} --follow-tags
+
+      - name: Build
+        run: |
+          pnpm i
+          pnpm run build
+
+      - name: Publish latest
+        if: ${{env.prerelease == 'false'}}
+        run: pnpm publish --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish next
+        if: ${{env.prerelease == 'true'}}
+        run: pnpm publish --tag next --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{github.ref}}
+          release_name: Release ${{env.version}}
+          prerelease: ${{env.prerelease}}
