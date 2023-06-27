@@ -72,17 +72,17 @@ jobs:
         if: ${{env.prerelease == 'false'}}
         run: pnpm publish --no-git-checks
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish next
         if: ${{env.prerelease == 'true'}}
         run: pnpm publish --tag next --no-git-checks
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create Release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{github.ref}}
-          release_name: Release ${{env.version}}
+          name: Release ${{env.version}}
           prerelease: ${{env.prerelease}}
