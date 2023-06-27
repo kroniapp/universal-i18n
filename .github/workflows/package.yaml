@@ -23,14 +23,18 @@ jobs:
           if [[ $tag == *"-next"* ]]; then
             prerelease=true
           fi
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+          message=$(git tag -l --format='%(contents:subject)' ${GITHUB_REF#refs/tags/})
 
           echo "branch=$branch" >> $GITHUB_ENV
           echo "prerelease=$prerelease" >> $GITHUB_ENV
           echo "version=$version" >> $GITHUB_ENV
+          echo "message=$message" >> $GITHUB_ENV
 
           echo "Branch: $branch"
           echo "Prerelease: $prerelease"
           echo "Version: $version"
+          echo "Message: $message"
 
       - name: Configure Git
         run: |
@@ -56,11 +60,10 @@ jobs:
       - name: Update version
         run: |
           git fetch origin ${{env.branch}}
-          git tag -d $GITHUB_REF_NAME
-          git push --delete origin $GITHUB_REF_NAME
           git checkout ${{env.branch}}
-          pnpm version ${{env.version}} -m "Release %s"
-          git push origin ${{env.branch}} --follow-tags
+          pnpm version ${{env.version}} --no-git-tag-version
+          git commit -am "Release ${{env.version}}"
+          git push origin ${{env.branch}}
 
       - name: Build
         run: |
@@ -85,3 +88,4 @@ jobs:
           tag_name: ${{github.ref}}
           name: Release ${{env.version}}
           prerelease: ${{env.prerelease}}
+          body: ${{env.message}}
