@@ -81,8 +81,8 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create Release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{github.ref}}
-          release_name: Release ${{env.version}}
+          name: Release ${{env.version}}
           prerelease: ${{env.prerelease}}
