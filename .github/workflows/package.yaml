@@ -82,7 +82,6 @@ jobs:
           pnpm run build
 
       - name: Publish
-        if: ${{env.prerelease == 'true'}}
         run: pnpm publish --tag ${{env.npm_tag}} --no-git-checks
 
       - name: Create Release
