@@ -69,7 +69,7 @@ jobs:
           git fetch --all
           git checkout ${{env.branch}}
           git pull origin ${{env.branch}}
-          pnpm version ${{env.version}} --no-git-tag-version
+          pnpm version ${{env.version}} --no-git-tag-version --allow-same-version
           git commit -am "Bump version ${{env.version}}"
           git push origin ${{env.branch}}
 
