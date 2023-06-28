@@ -56,11 +56,13 @@ jobs:
           echo "version=$version" >> $GITHUB_ENV
           echo "message=$message" >> $GITHUB_ENV
           echo "branch=$branch" >> $GITHUB_ENV
+          echo "npm_tag=$npm_tag" >> $GITHUB_ENV
 
           echo "Prerelease: $prerelease"
           echo "Version: $version"
           echo "Message: $message"
           echo "Branch: $branch"
+          echo "NPM tag: $npm_tag"
 
       - name: Update version
         run: |
