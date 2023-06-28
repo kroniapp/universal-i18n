@@ -36,8 +36,6 @@ jobs:
 
       - name: Set up env
         run: |
-          branch=${{github.event.base_ref}}
-          branch=$(echo $branch | sed -r "s/^refs\/heads\/(.*)$/\1/")
           tag=$GITHUB_REF_NAME
           version=$(echo $tag | sed -r "s/^v(.*)$/\1/")
           prerelease=false
@@ -46,37 +44,41 @@ jobs:
           fi
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
           message=$(git tag -l --format='%(contents:subject)' ${GITHUB_REF#refs/tags/})
+          if [[ $prerelease == "true" ]]; then
+            branch=develop
+            npm_tag=next
+          else
+            branch=master
+            npm_tag=latest
+          fi
 
-          echo "branch=$branch" >> $GITHUB_ENV
           echo "prerelease=$prerelease" >> $GITHUB_ENV
           echo "version=$version" >> $GITHUB_ENV
           echo "message=$message" >> $GITHUB_ENV
+          echo "branch=$branch" >> $GITHUB_ENV
 
-          echo "Branch: $branch"
           echo "Prerelease: $prerelease"
           echo "Version: $version"
           echo "Message: $message"
+          echo "Branch: $branch"
 
       - name: Update version
         run: |
+          git fetch --all
+          git checkout ${{env.branch}}
+          git pull origin ${{env.branch}}
           pnpm version ${{env.version}} --no-git-tag-version
-          git commit -am "Bump version ${{github.ref}}"
-          git push
+          git commit -am "Bump version ${{env.version}}"
+          git push origin ${{env.branch}}
 
       - name: Build
         run: |
           pnpm i
           pnpm run build
 
-      - name: Publish latest
-        if: ${{env.prerelease == 'false'}}
-        run: pnpm publish --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish next
+      - name: Publish
         if: ${{env.prerelease == 'true'}}
-        run: pnpm publish --tag next --no-git-checks
+        run: pnpm publish --tag ${{env.npm_tag}} --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
