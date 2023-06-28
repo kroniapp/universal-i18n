@@ -70,7 +70,7 @@ jobs:
           git checkout ${{env.branch}}
           git pull origin ${{env.branch}}
           pnpm version ${{env.version}} --no-git-tag-version --allow-same-version
-          git commit -am "Bump version ${{env.version}}"
+          git commit -am "Bump version ${{env.version}}" --allow-empty
           git push origin ${{env.branch}}
 
       - name: Build
