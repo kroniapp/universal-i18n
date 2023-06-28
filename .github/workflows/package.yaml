@@ -4,7 +4,7 @@ on:
   push:
     tags:
       - v[0-9]+\.[0-9]+\.[0-9]+
-      - v[0-9]+\.[0-9]+\.[0-9]+-next\.[0-9]*
+      - v[0-9]+\.[0-9]+\.[0-9]+-next\.[0-9]+
 
 jobs:
   build:
@@ -88,7 +88,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{github.ref}}
-          name: ${{github.ref}}
+          tag_name: v${{env.version}}
+          name: v${{env.version}}
           prerelease: ${{env.prerelease}}
           body: ${{env.message}}
