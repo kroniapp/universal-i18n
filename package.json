@@ -1,6 +1,6 @@
 {
   "name": "typescript-i18n",
-  "version": "0.2.0",
+  "version": "0.2.1-next.2",
   "description": "",
   "keywords": [
     "i18n",
@@ -39,7 +39,8 @@
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
   },
   "files": [
