@@ -42,11 +42,14 @@ jobs:
           tag=$GITHUB_REF_NAME
           version=$(echo $tag | sed -r "s/^v(.*)$/\1/")
           prerelease=false
+
           if [[ $tag == *"-next"* ]]; then
             prerelease=true
           fi
+
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
           message=$(git tag -l --format='%(contents:subject)' ${GITHUB_REF#refs/tags/})
+          
           if [[ $prerelease == "true" ]]; then
             branch=develop
             npm_tag=next
