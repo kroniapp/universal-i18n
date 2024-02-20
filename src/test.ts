@@ -15,7 +15,7 @@ const it = {
   test: {
     working: "Funziona"
   }
-};
+} as const;
 
 const lang = new I18n(
   {en, it},

@@ -2,6 +2,7 @@ import {ParseRegExp, MatchRegExp} from "type-level-regexp";
 
 type ExtractPropertyName<T extends string[]> = T[number] extends `{{${infer U}}}` ? U : never;
 
+//@ts-ignore
 export type GetVariables<V extends string> = ExtractPropertyName<NonNullable<MatchRegExp<V, ParseRegExp<"{{[^}]+}}">, "g">>>;
 
 export type HasVariables<V extends string> = MatchRegExp<V, ParseRegExp<"{{[^}]+}}">, never> extends null ? false : true;
