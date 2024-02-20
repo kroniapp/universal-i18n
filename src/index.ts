@@ -1,44 +1,16 @@
-type TypescriptI18nStrings = {
-  [lang: string]: TypescriptI18nLang;
-};
+import type {TypescriptI18nStrings, TypescriptI18nLang, TypescriptI18nOptions, ToFunction, GetVariables, ToFunctionString} from "./types";
 
-type TypescriptI18nLang = {
-  [key: string]: TypescriptI18nLang | string;
-};
-
-type TypescriptI18nOptions<T> = {
-  defaultLanguage: keyof T;
-};
-
-type ToFunction<S> = {
-  [key in keyof S]: S[key] extends string ? ToFunctionString<key> : ToFunction<S[key]>;
-};
-
-type ToFunctionString<K> = K extends `${typeof functionPrefix}${string}` ? (variables: Record<string, any>) => string : string;
-
-const ToFunction = <S extends TypescriptI18nStrings>(strings: TypescriptI18nLang): ToFunction<S[keyof S]> => {
-  const s: any = strings;
-  Object.entries(strings).map(([key, value]) => (s[key] = typeof value === "string" ? ToFunctionString(key, value) : ToFunction(value)));
-
-  return s as ToFunction<S[keyof S]>;
-};
-
-const ToFunctionString = (key: string, value: string) =>
-  key[0] === functionPrefix ? (variables: Record<string, any>) => value.replace(/{{(.+)}}/g, (m, i) => variables[i] || m) : value;
-
-const functionPrefix = "$";
-
-class TypescriptI18n<Strings extends TypescriptI18nStrings> {
-  private strings: Strings;
+export default class<Strings extends TypescriptI18nStrings, CurrentLanguage extends keyof Strings> {
+  private readonly strings: Strings;
 
   currentLanguage: keyof Strings = "en";
-  private currentStrings: ToFunction<Strings[keyof Strings]>;
+  private currentStrings: ToFunction<Strings[CurrentLanguage]>;
 
-  readonly options: TypescriptI18nOptions<Strings> = {
+  private readonly options: TypescriptI18nOptions<keyof Strings> = {
     defaultLanguage: "en"
   };
 
-  constructor(strings: Strings, options?: Partial<TypescriptI18nOptions<Strings>>) {
+  constructor(strings: Strings, options?: Partial<TypescriptI18nOptions<CurrentLanguage>>) {
     this.strings = strings;
 
     this.options = {
@@ -50,36 +22,50 @@ class TypescriptI18n<Strings extends TypescriptI18nStrings> {
     this.currentStrings = this.s;
   }
 
-  get s(): ToFunction<Strings[keyof Strings]> {
-    this.currentStrings = ToFunction<Strings>(this.strings[this.currentLanguage]);
-    return this.currentStrings as ToFunction<Strings[keyof Strings]>;
+  get s(): ToFunction<Strings[CurrentLanguage]> {
+    this.currentStrings = this.toFunction<Strings[CurrentLanguage]>(this.strings[this.currentLanguage]);
+    return this.currentStrings;
   }
 
   get = (key: string, variables?: Record<string, any>): string => {
-    const res = key.split(".").reduce((word: any, part: string) => word[part] || "", this.currentStrings);
+    let res = key.split(".").reduce((word: any, part: string) => word[part] || "", this.currentStrings);
+
+    if (!res) res = key.split(".").reduce((word: any, part: string) => word[part] || "", this.strings[this.options.defaultLanguage]);
 
     if (!res) return key;
 
-    switch (typeof res) {
-      case "string":
-        return res;
-      default:
-        if (!variables) return key;
-        return res(variables);
-    }
+    if (typeof res === "string") return res;
+
+    if (!variables) return key;
+
+    return res(variables);
   };
 
-  getLanguages = (): (keyof Strings)[] => Object.keys(this.strings);
+  get languages(): (keyof Strings)[] {
+    return Object.keys(this.strings);
+  }
 
   getUserLanguage = (languages: string | readonly string[]): keyof Strings => {
     if (!languages) return this.options.defaultLanguage;
 
     const language = `${`${languages}`.match(/[a-zA-Z]+(?=-|_|,|;)?/)}`.toLowerCase() as keyof Strings;
 
-    if (this.getLanguages().includes(language)) return language;
+    if (!this.languages.includes(language)) return this.options.defaultLanguage;
 
-    return this.options.defaultLanguage;
+    return language;
   };
-}
 
-export default TypescriptI18n;
+  private toFunction = <S extends TypescriptI18nLang>(strings: TypescriptI18nLang): ToFunction<S> => {
+    const s: any = this.strings[this.options.defaultLanguage];
+    Object.entries(strings).map(([key, value]) => {
+      s[key] = typeof value === "string" ? this.toFunctionString(value) : this.toFunction(value);
+    });
+
+    return s as ToFunction<S>;
+  };
+
+  private toFunctionString = <V extends string>(value: V): ToFunctionString<V> =>
+    (/{{([^}]+)}}/.exec(value)
+      ? (variables: Record<GetVariables<V>, any>) => value.replace(/{{([^}]+)}}/g, (match, variable) => variables[variable] || match)
+      : value) as ToFunctionString<V>;
+}
