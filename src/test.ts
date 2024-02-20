@@ -1,4 +1,4 @@
-import I18n from "./";
+import {TypescriptI18n} from "./";
 
 const en = {
   hello: "Hello {{name}}",
@@ -17,7 +17,7 @@ const it = {
   }
 } as const;
 
-const lang = new I18n(
+const lang = new TypescriptI18n(
   {en, it},
   {
     defaultLanguage: "en"

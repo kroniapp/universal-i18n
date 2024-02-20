@@ -1,6 +1,6 @@
 import type {TypescriptI18nStrings, TypescriptI18nLang, TypescriptI18nOptions, ToFunction, GetVariables, ToFunctionString} from "./types";
 
-export default class<Strings extends TypescriptI18nStrings, CurrentLanguage extends keyof Strings> {
+export class TypescriptI18n<Strings extends TypescriptI18nStrings, CurrentLanguage extends keyof Strings> {
   private readonly strings: Strings;
 
   currentLanguage: keyof Strings = "en";
