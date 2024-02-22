@@ -1,6 +1,6 @@
 {
   "name": "typescript-i18n",
-  "version": "0.3.0-next.2",
+  "version": "0.3.0-next.3",
   "description": "",
   "keywords": [
     "i18n",
@@ -29,17 +29,13 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "start": "tsx --tsconfig tsconfig.test.json src/test.ts",
-    "clean": "rm -rf ./dist",
-    "build": "pnpm run build:esm && pnpm run build:cjs",
-    "build:esm": "tsc -p tsconfig.esm.json && shx mv dist/index.js dist/index.mjs",
-    "build:cjs": "tsc -p tsconfig.cjs.json"
+    "start": "tsx src/test.ts",
+    "build": "pkgroll"
   },
   "license": "ISC",
   "devDependencies": {
-    "shx": "^0.3.4",
+    "pkgroll": "^2.0.1",
     "tsx": "^4.7.1",
-    "type-level-regexp": "^0.1.17",
     "typescript": "^5.3.3"
   },
   "exports": {
