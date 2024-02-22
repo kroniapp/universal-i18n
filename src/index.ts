@@ -3,7 +3,7 @@ import type {TypescriptI18nStrings, TypescriptI18nLang, TypescriptI18nOptions} f
 export class TypescriptI18n<Strings extends TypescriptI18nStrings, CurrentLanguage extends keyof Strings> {
   private readonly strings: Strings;
 
-  currentLanguage: keyof Strings = "en";
+  private _currentLanguage: keyof Strings = "en";
   private currentStrings: Strings[CurrentLanguage];
 
   private readonly options: TypescriptI18nOptions<keyof Strings> = {
@@ -19,11 +19,9 @@ export class TypescriptI18n<Strings extends TypescriptI18nStrings, CurrentLangua
     };
 
     this.currentLanguage = this.options.defaultLanguage;
-    this.currentStrings = this.s;
   }
 
   get s(): Strings[CurrentLanguage] {
-    this.currentStrings = this.getCurrentStrings(this.strings[this.currentLanguage]);
     return this.currentStrings;
   }
 
@@ -37,18 +35,27 @@ export class TypescriptI18n<Strings extends TypescriptI18nStrings, CurrentLangua
     return res;
   };
 
+  get languages(): (keyof Strings)[] {
+    return Object.keys(this.strings);
+  }
+
+  get currentLanguage(): keyof Strings {
+    return this._currentLanguage;
+  }
+
+  set currentLanguage(val: keyof Strings) {
+    this._currentLanguage = val;
+    this.currentStrings = this.getCurrentStrings(this.strings[val]);
+  }
+
   private getCurrentStrings = (strings: TypescriptI18nLang, defaultStrings?: TypescriptI18nLang) => {
-    const s: any = defaultStrings || this.strings[this.options.defaultLanguage];
+    const s: any = {...(defaultStrings || this.strings[this.options.defaultLanguage])};
     Object.entries(strings).map(([key, value]) => {
       s[key] = typeof value === "object" ? this.getCurrentStrings(value, s[key]) : value;
     });
 
     return s;
   };
-
-  get languages(): (keyof Strings)[] {
-    return Object.keys(this.strings);
-  }
 
   getUserLanguage = (languages: string | readonly string[]): keyof Strings => {
     if (!languages) return this.options.defaultLanguage;
