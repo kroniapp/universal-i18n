@@ -55,10 +55,10 @@ export class TypescriptI18n<Strings extends TypescriptI18nStrings, CurrentLangua
     return language;
   };
 
-  private toFunction = <S extends TypescriptI18nLang>(strings: TypescriptI18nLang): ToFunction<S> => {
-    const s: any = this.strings[this.options.defaultLanguage];
+  private toFunction = <S extends TypescriptI18nLang>(strings: TypescriptI18nLang, defaultStrings?: TypescriptI18nLang): ToFunction<S> => {
+    const s: any = defaultStrings || this.strings[this.options.defaultLanguage];
     Object.entries(strings).map(([key, value]) => {
-      s[key] = typeof value === "string" ? this.toFunctionString(value) : this.toFunction(value);
+      s[key] = typeof value === "string" ? this.toFunctionString(value) : this.toFunction(value, s[key]);
     });
 
     return s as ToFunction<S>;
