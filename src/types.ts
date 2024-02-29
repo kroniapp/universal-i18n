@@ -3,7 +3,7 @@ export type TypescriptI18nStrings = {
 };
 
 export type TypescriptI18nLang = {
-  [key: string]: TypescriptI18nLang | string | ((variables: any) => string);
+  [key: string]: TypescriptI18nLang | string | string[] | ((variables: any) => string);
 };
 
 export type TypescriptI18nOptions<CurrentLanguage> = {

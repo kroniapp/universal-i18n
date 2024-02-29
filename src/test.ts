@@ -2,6 +2,7 @@ import {TypescriptI18n} from "./";
 
 const en = {
   count: (items: string[]) => `${items.length} items`,
+  array: ["1", "2"],
   hello: ({name}) => `Hello ${name}`,
   goodbye: "Goodbye",
   onlyEnglish: "Only english",
@@ -28,6 +29,8 @@ const lang = new TypescriptI18n(
 
 lang.currentLanguage = "it";
 const t = lang.s;
+
+console.log(t);
 
 console.log(t.goodbye);
 console.log(t.hello({name: "Andrea"}));

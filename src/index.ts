@@ -51,7 +51,7 @@ export class TypescriptI18n<Strings extends TypescriptI18nStrings, CurrentLangua
   private getCurrentStrings = (strings: TypescriptI18nLang, defaultStrings?: TypescriptI18nLang) => {
     const s: any = {...(defaultStrings || this.strings[this.options.defaultLanguage])};
     Object.entries(strings).map(([key, value]) => {
-      s[key] = typeof value === "object" ? this.getCurrentStrings(value, s[key]) : value;
+      s[key] = typeof value === "object" && !Array.isArray(value) ? this.getCurrentStrings(value, s[key]) : value;
     });
 
     return s;
